@@ -15,7 +15,7 @@ digits = load_digits()
 class InputData(BaseModel):
     features: conlist(float, min_length=64, max_length=64)
 
-@app.get("/")
+@app.get("/health")
 def root():
     return {"message": "Digits MLOps API is running"}
 
