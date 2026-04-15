@@ -1,26 +1,30 @@
-import pickle
+import joblib
 import numpy as np
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, conlist
+from sklearn.datasets import load_digits
 
 app = FastAPI()
 
-# Charger le modèle
-with open("artifacts/model.pkl", "rb") as f:
-    model = pickle.load(f)
+# load model
+model = joblib.load("artifacts/model.pkl")
 
+# labels
+digits = load_digits()
 
 class InputData(BaseModel):
-    features: list[float]
-
+    features: conlist(float, min_length=64, max_length=64)
 
 @app.get("/")
 def root():
-    return {"message": "MLOps API is running"}
-
+    return {"message": "Digits MLOps API is running"}
 
 @app.post("/predict")
 def predict(data: InputData):
     X = np.array(data.features).reshape(1, -1)
-    prediction = model.predict(X)
-    return {"prediction": int(prediction[0])}
+    prediction = model.predict(X)[0]
+
+    return {
+        "prediction": int(prediction),
+        "label": str(prediction)
+    }
